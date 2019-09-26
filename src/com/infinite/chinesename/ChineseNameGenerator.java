@@ -10,8 +10,8 @@ public class ChineseNameGenerator {
 
     public static void main(String[] args) {
         int firstNameSize = FirstName.FIRST_NAME.length;
-        int boysSecondNameSize = SecondName.SECOND_NAME_BOY.length;
-        int girlsSecondNameSize = SecondName.SECOND_NAME_GIRL.length;
+        int boysSecondNameSize = SecondName.SECOND_NAME_BOY2.length;
+        int girlsSecondNameSize = SecondName.SECOND_NAME_GIRL2.length;
         System.out.println("firstNameSize:" + firstNameSize
                 + ",boysSecondNameSize:" + boysSecondNameSize
                 + ",girlsSecondNameSize:" + girlsSecondNameSize
@@ -22,11 +22,12 @@ public class ChineseNameGenerator {
 
         File boysFile = generatorFile(currentUrl, "boys_name.json");
         File girlsFile = generatorFile(currentUrl, "girls_name.json");
-        int boySize = generateNames(boysFile, true);
-        int girlSize = generateNames(girlsFile, false);
+        int boySize = generateNames(boysFile, SecondName.getBoyNames(), true);
+        int girlSize = generateNames(girlsFile, SecondName.getGirlNames(), false);
         System.out.println("boys names size is:" + boySize);
         System.out.println("girls names size is:" + girlSize);
         System.out.println("all names size is:" + (boySize + girlSize));
+
     }
 
     private static File generatorFile(URL currentUrl, String s) {
@@ -43,10 +44,9 @@ public class ChineseNameGenerator {
     }
 
 
-    public static int generateNames(File file, boolean isBoy) {
+    public static int generateNames(File file, String[] names, boolean isBoy) {
         int firstNameSize = FirstName.FIRST_NAME.length;
-        int boysSecondNameSize = SecondName.SECOND_NAME_BOY.length;
-        int girlsSecondNameSize = SecondName.SECOND_NAME_GIRL.length;
+        int allSize = names.length;
 
         StringBuilder sb = new StringBuilder();
         sb.append("[");
@@ -56,11 +56,9 @@ public class ChineseNameGenerator {
         long start = System.currentTimeMillis();
         System.out.println("start generator " + (isBoy ? "boy" : "girl") + " name");
         for (int i = 0; i < firstNameSize; i++) {
-            int allSize = isBoy ? boysSecondNameSize : girlsSecondNameSize;
             for (int j = 0; j < allSize; j++) {
                 sb.append("\"")
-                        .append(FirstName.FIRST_NAME[i]).append(isBoy ?
-                        SecondName.SECOND_NAME_BOY[j] : SecondName.SECOND_NAME_GIRL[j])
+                        .append(FirstName.FIRST_NAME[i]).append(names[j])
                         .append("\"");
                 firstToEnd = i == (firstNameSize - 1);
                 secondToEnd = j == (allSize - 1);
@@ -73,6 +71,7 @@ public class ChineseNameGenerator {
                 if (currentSize % 100 == 0 || (firstToEnd && secondToEnd)) {
                     System.out.println("write name to file");
                     try {
+                        sb.append("\n");
                         FileWriter fileWriter = new FileWriter(file.getName(), true);
                         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
                         bufferedWriter.write(sb.toString());
